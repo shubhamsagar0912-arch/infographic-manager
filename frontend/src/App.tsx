@@ -12,6 +12,7 @@ function App() {
     const [isDirty, setIsDirty] = useState(false);
     const [viewMode, setViewMode] = useState<'editor' | 'gallery'>('editor');
     const [editorView, setEditorView] = useState<'edit' | 'preview'>('edit');
+    const [refreshKey, setRefreshKey] = useState(0);
 
     const handleFileSelect = async (path: string) => {
         if (isDirty) {
@@ -30,11 +31,33 @@ function App() {
     };
 
     const handleSave = async () => {
-        if (!currentFile) return;
+        let targetFile = currentFile;
+
+        if (!targetFile) {
+            if (!currentPath) {
+                alert("Please open a folder first to save files.");
+                return;
+            }
+            const name = prompt("Enter file name to save (e.g., my-note.md):");
+            if (!name) return;
+
+            try {
+                await window.go.main.App.CreateFile(currentPath, name);
+                // Assume standard separator for now, or just use name if relative works (it might not for SaveFile)
+                // We'll construct it manually.
+                targetFile = `${currentPath}/${name}`;
+
+                setRefreshKey(prev => prev + 1);
+                setCurrentFile(targetFile);
+            } catch (err) {
+                alert("Failed to create file: " + err);
+                return;
+            }
+        }
+
         try {
-            await window.go.main.App.SaveFile(currentFile, content);
+            await window.go.main.App.SaveFile(targetFile, content);
             setIsDirty(false);
-            alert("Saved!");
         } catch (err) {
             console.error("Failed to save file", err);
             alert("Failed to save");
@@ -55,7 +78,7 @@ function App() {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [content, currentFile]);
+    }, [content, currentFile, currentPath]);
 
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-white text-zinc-900">
@@ -64,6 +87,7 @@ function App() {
                 onViewChange={setViewMode}
                 onFolderOpen={handleFolderOpen}
                 currentWorkspace={currentPath}
+                refreshKey={refreshKey}
             />
             <main className="flex-1 flex flex-col overflow-hidden relative bg-white">
                 {viewMode === 'editor' && (
@@ -81,11 +105,12 @@ function App() {
                             </button>
                             <button
                                 onClick={handleSave}
-                                disabled={!currentFile}
-                                className={`flex items-center px-4 py-1.5 text-xs font-bold rounded-md transition-all shadow-sm ${currentFile
+                                className={`flex items-center px-4 py-1.5 text-xs font-bold rounded-md transition-all shadow-sm ${(currentFile || currentPath)
                                         ? "bg-[#2ea44f] hover:bg-[#2c974b] text-white border border-[rgba(27,31,35,0.15)]"
                                         : "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
                                     }`}
+                                disabled={!currentFile && !currentPath}
+                                title={!currentFile && !currentPath ? "Open a workspace to save" : "Save"}
                             >
                                 <Save className="w-4 h-4 mr-1.5" />
                                 Save

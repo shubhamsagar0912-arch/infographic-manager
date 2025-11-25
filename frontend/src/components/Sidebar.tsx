@@ -13,6 +13,7 @@ interface SidebarProps {
     onViewChange: (mode: 'editor' | 'gallery') => void;
     onFolderOpen: (path: string) => void;
     currentWorkspace: string | null;
+    refreshKey?: number;
 }
 
 const FileTreeItem = ({ file, onSelect, onToggle, depth = 0, onRefresh }: {
@@ -157,7 +158,7 @@ const FileTreeItem = ({ file, onSelect, onToggle, depth = 0, onRefresh }: {
     );
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ onFileSelect, onViewChange, onFolderOpen, currentWorkspace }) => {
+const Sidebar: React.FC<SidebarProps> = ({ onFileSelect, onViewChange, onFolderOpen, currentWorkspace, refreshKey }) => {
     const [files, setFiles] = useState<FileInfo[]>([]);
 
     const loadFiles = async (path: string) => {
@@ -177,7 +178,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onFileSelect, onViewChange, onFolderO
         if (currentWorkspace) {
             loadFiles(currentWorkspace);
         }
-    }, [currentWorkspace]);
+    }, [currentWorkspace, refreshKey]);
 
     const handleOpenFolder = async () => {
         try {
@@ -187,6 +188,32 @@ const Sidebar: React.FC<SidebarProps> = ({ onFileSelect, onViewChange, onFolderO
             }
         } catch (err) {
             console.error("Failed to open folder", err);
+        }
+    };
+
+    const handleCreateFileRoot = async () => {
+        if (!currentWorkspace) return;
+        const name = prompt("Enter file name (e.g., note.md):");
+        if (name) {
+            try {
+                await window.go.main.App.CreateFile(currentWorkspace, name);
+                loadFiles(currentWorkspace);
+            } catch (err) {
+                alert("Failed to create file: " + err);
+            }
+        }
+    };
+
+    const handleCreateFolderRoot = async () => {
+        if (!currentWorkspace) return;
+        const name = prompt("Enter folder name:");
+        if (name) {
+            try {
+                await window.go.main.App.CreateDirectory(currentWorkspace, name);
+                loadFiles(currentWorkspace);
+            } catch (err) {
+                alert("Failed to create folder: " + err);
+            }
         }
     };
 
@@ -202,9 +229,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onFileSelect, onViewChange, onFolderO
             <div className="flex-1 overflow-y-auto py-4">
                 <div className="px-4 mb-2 flex justify-between items-center">
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Explorer</span>
-                    <button onClick={handleOpenFolder} className="text-xs font-semibold text-[#0969da] hover:underline">
-                        {currentWorkspace ? "Change" : "Open"}
-                    </button>
+                    <div className="flex space-x-2">
+                        {currentWorkspace && (
+                            <>
+                                <button onClick={handleCreateFileRoot} className="text-slate-400 hover:text-[#2ea44f]" title="New File">
+                                    <Plus className="w-4 h-4" />
+                                </button>
+                                <button onClick={handleCreateFolderRoot} className="text-slate-400 hover:text-[#2ea44f]" title="New Folder">
+                                    <Folder className="w-4 h-4" />
+                                </button>
+                            </>
+                        )}
+                        <button onClick={handleOpenFolder} className="text-xs font-semibold text-[#0969da] hover:underline ml-2">
+                            {currentWorkspace ? "Change" : "Open"}
+                        </button>
+                    </div>
                 </div>
 
                 {currentWorkspace ? (

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "infographic-manager",
+  "outputfilename": "infographic-manager",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "shubham sagar",
+    "email": "shubhamsagar0912@gmail.com"
+  }
+}

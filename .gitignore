@@ -1,0 +1,14 @@
+# Wails
+build/bin
+build/wails.exe
+build/wails
+frontend/dist
+frontend/node_modules
+
+# IDEs
+.idea
+.vscode
+.DS_Store
+
+# Go
+go.work

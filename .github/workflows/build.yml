@@ -1,0 +1,53 @@
+name: Wails Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  # Necessary for most environments
+  GO_VERSION: '1.21'
+  NODE_VERSION: '18'
+
+jobs:
+  build:
+    name: Build for macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
+      - name: Build Application
+        run: |
+          # Ensure we are in the right directory if needed, but checkout puts us at root
+          # Install frontend dependencies
+          cd frontend
+          npm install
+          cd ..
+          
+          # Build the app
+          # -platform darwin/universal (or darwin/amd64, darwin/arm64)
+          # For universal binary (Intel + Apple Silicon)
+          wails build -platform darwin/universal
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: InfographicManager-macOS
+          path: build/bin/infographic-manager.app
+          if-no-files-found: error

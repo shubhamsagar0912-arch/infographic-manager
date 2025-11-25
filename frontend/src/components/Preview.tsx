@@ -10,7 +10,7 @@ interface PreviewProps {
 
 mermaid.initialize({
     startOnLoad: false,
-    theme: 'dark',
+    theme: 'default', // Changed to default (light)
     securityLevel: 'loose',
 });
 
@@ -47,8 +47,6 @@ const LocalImage = ({ src, alt, filePath }: { src?: string, alt?: string, filePa
             try {
                 let targetPath = src;
                 if (!src.startsWith('/') && filePath) {
-                    // Simple path resolution for relative paths
-                    // Assuming Mac/Linux forward slashes for now as per user OS
                     const lastSlash = filePath.lastIndexOf('/');
                     if (lastSlash !== -1) {
                         const dir = filePath.substring(0, lastSlash);
@@ -67,16 +65,13 @@ const LocalImage = ({ src, alt, filePath }: { src?: string, alt?: string, filePa
         loadImage();
     }, [src, filePath]);
 
-    return <img src={imageSrc} alt={alt} className="max-w-full h-auto rounded-lg my-4" />;
+    return <img src={imageSrc} alt={alt} className="max-w-full h-auto rounded-lg my-4 shadow-sm" />;
 };
 
 const Preview: React.FC<PreviewProps> = ({ content, filePath }) => {
     return (
-        <div className="h-full w-full flex flex-col bg-slate-900 overflow-hidden">
-            <div className="bg-slate-800 px-4 py-2 border-b border-slate-700 text-sm font-medium text-slate-300">
-                Preview
-            </div>
-            <div className="flex-1 overflow-auto p-8 prose prose-invert max-w-none">
+        <div className="h-full w-full flex flex-col bg-white overflow-hidden">
+            <div className="flex-1 overflow-auto p-12 prose prose-slate max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h1:text-slate-900 prose-a:text-[#0969da] prose-code:text-[#0969da] prose-code:bg-slate-100 prose-code:px-1 prose-code:rounded prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200 prose-img:rounded-lg prose-img:shadow-sm">
                 <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
@@ -89,13 +84,13 @@ const Preview: React.FC<PreviewProps> = ({ content, filePath }) => {
                             }
 
                             return !inline && match ? (
-                                <div className="mockup-code bg-slate-800 p-4 rounded-md my-4">
+                                <div className="mockup-code bg-slate-50 border border-slate-200 p-4 rounded-md my-4 overflow-x-auto">
                                     <code className={className} {...props}>
                                         {children}
                                     </code>
                                 </div>
                             ) : (
-                                <code className="bg-slate-800 px-1 py-0.5 rounded text-sm" {...props}>
+                                <code className="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
                                     {children}
                                 </code>
                             );

@@ -51,8 +51,7 @@ const FileTreeItem = ({ file, onSelect, onToggle, depth = 0, onRefresh }: {
         if (name) {
             try {
                 await window.go.main.App.CreateFile(file.path, name);
-                // Refresh children
-                setExpanded(false); // Collapse to force reload or manually reload
+                setExpanded(false);
                 handleToggle(e as any);
                 onRefresh();
             } catch (err) {
@@ -94,7 +93,7 @@ const FileTreeItem = ({ file, onSelect, onToggle, depth = 0, onRefresh }: {
     return (
         <div className="select-none">
             <div
-                className="flex items-center px-2 py-1 text-sm text-slate-300 hover:bg-slate-700 rounded cursor-pointer group relative"
+                className="flex items-center px-2 py-1.5 text-sm text-slate-600 hover:bg-sky-50 hover:text-[#0969da] rounded cursor-pointer group relative transition-colors"
                 style={{ paddingLeft: `${depth * 12 + 8}px` }}
                 onClick={(e) => {
                     if (file.isDir) handleToggle(e);
@@ -106,27 +105,27 @@ const FileTreeItem = ({ file, onSelect, onToggle, depth = 0, onRefresh }: {
                 }}
             >
                 {file.isDir && (
-                    <span className="mr-1 text-slate-500">
-                        {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                    <span className="mr-1.5 text-slate-400 group-hover:text-sky-500">
+                        {expanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                     </span>
                 )}
 
                 {file.isDir ? (
-                    <Folder className="w-4 h-4 mr-2 text-yellow-500" />
+                    <Folder className="w-4 h-4 mr-2 text-sky-200 fill-sky-400" />
                 ) : (
                     <File className="w-4 h-4 mr-2 text-slate-400" />
                 )}
-                <span className="truncate flex-1">{file.name}</span>
+                <span className="truncate flex-1 font-medium">{file.name}</span>
 
                 {/* Context Menu Trigger (Hover) */}
                 {file.isDir && (
                     <div className="hidden group-hover:flex space-x-1">
                         <button
                             onClick={handleCreateFile}
-                            className="p-0.5 hover:bg-slate-600 rounded"
+                            className="p-1 hover:bg-sky-100 rounded text-slate-400 hover:text-sky-600"
                             title="New File"
                         >
-                            <Plus className="w-3 h-3 text-slate-400" />
+                            <Plus className="w-3 h-3" />
                         </button>
                     </div>
                 )}
@@ -134,13 +133,13 @@ const FileTreeItem = ({ file, onSelect, onToggle, depth = 0, onRefresh }: {
 
             {/* Simple Context Menu */}
             {showMenu && (
-                <div className="fixed z-50 bg-slate-800 border border-slate-600 rounded shadow-xl p-1 text-xs"
-                    style={{ left: '200px' }} // Positioning needs improvement, simplified for now
+                <div className="fixed z-50 bg-white border border-slate-200 rounded-md shadow-lg p-1 text-xs min-w-[120px]"
+                    style={{ left: '200px' }}
                     onMouseLeave={() => setShowMenu(false)}
                 >
-                    <button onClick={handleCreateFile} className="block w-full text-left px-2 py-1 hover:bg-slate-700 rounded mb-1">New Note</button>
-                    <button onClick={handleCreateFolder} className="block w-full text-left px-2 py-1 hover:bg-slate-700 rounded mb-1">New Folder</button>
-                    <button onClick={handleImport} className="block w-full text-left px-2 py-1 hover:bg-slate-700 rounded">Import File</button>
+                    <button onClick={handleCreateFile} className="block w-full text-left px-3 py-1.5 hover:bg-sky-50 text-slate-700 hover:text-[#0969da] rounded-sm mb-0.5">New Note</button>
+                    <button onClick={handleCreateFolder} className="block w-full text-left px-3 py-1.5 hover:bg-sky-50 text-slate-700 hover:text-[#0969da] rounded-sm mb-0.5">New Folder</button>
+                    <button onClick={handleImport} className="block w-full text-left px-3 py-1.5 hover:bg-sky-50 text-slate-700 hover:text-[#0969da] rounded-sm">Import File</button>
                 </div>
             )}
 
@@ -192,22 +191,25 @@ const Sidebar: React.FC<SidebarProps> = ({ onFileSelect, onViewChange, onFolderO
     };
 
     return (
-        <div className="w-64 h-full bg-slate-800 border-r border-slate-700 flex flex-col">
-            <div className="p-4 border-b border-slate-700 flex justify-between items-center">
-                <h1 className="text-xl font-bold text-blue-400">Infographic Mgr</h1>
+        <div className="w-64 h-full bg-slate-50 border-r border-slate-200 flex flex-col shadow-[1px_0_5px_rgba(0,0,0,0.05)] z-20">
+            <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                <h1 className="text-lg font-bold text-slate-800 flex items-center">
+                    <span className="w-2 h-6 bg-[#2ea44f] rounded-full mr-2"></span>
+                    Infographic
+                </h1>
             </div>
 
             <div className="flex-1 overflow-y-auto py-4">
                 <div className="px-4 mb-2 flex justify-between items-center">
-                    <span className="text-xs font-semibold text-slate-400 uppercase">Explorer</span>
-                    <button onClick={handleOpenFolder} className="text-xs text-blue-400 hover:text-blue-300">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Explorer</span>
+                    <button onClick={handleOpenFolder} className="text-xs font-semibold text-[#0969da] hover:underline">
                         {currentWorkspace ? "Change" : "Open"}
                     </button>
                 </div>
 
                 {currentWorkspace ? (
                     <div className="px-2">
-                        <div className="text-xs text-slate-500 mb-2 truncate px-2" title={currentWorkspace}>
+                        <div className="text-xs font-medium text-slate-500 mb-3 truncate px-2 py-1 bg-slate-100 rounded border border-slate-200" title={currentWorkspace}>
                             {currentWorkspace.split('/').pop()}
                         </div>
                         <div className="space-y-0.5">
@@ -223,30 +225,33 @@ const Sidebar: React.FC<SidebarProps> = ({ onFileSelect, onViewChange, onFolderO
                         </div>
                     </div>
                 ) : (
-                    <div className="px-4 py-2 text-sm text-slate-500 italic">
-                        No workspace opened
+                    <div className="px-4 py-8 text-center">
+                        <div className="text-sm text-slate-500 mb-2">No workspace open</div>
+                        <button onClick={handleOpenFolder} className="text-xs bg-white border border-slate-300 px-3 py-1 rounded shadow-sm hover:bg-slate-50 text-slate-700">
+                            Open Folder
+                        </button>
                     </div>
                 )}
             </div>
 
-            <div className="p-4 border-t border-slate-700">
+            <div className="p-3 border-t border-slate-200 bg-slate-50">
                 <nav className="space-y-1">
                     <button
                         onClick={() => onViewChange('gallery')}
-                        className="flex items-center w-full px-2 py-2 text-sm font-medium text-slate-300 rounded-md hover:bg-slate-700 hover:text-white"
+                        className="flex items-center w-full px-3 py-2 text-sm font-medium text-slate-600 rounded-md hover:bg-white hover:text-[#0969da] hover:shadow-sm hover:border-slate-200 border border-transparent transition-all"
                     >
-                        <Image className="mr-3 h-5 w-5" />
+                        <Image className="mr-3 h-4 w-4" />
                         Gallery
                     </button>
                     <button
                         onClick={() => onViewChange('editor')}
-                        className="flex items-center w-full px-2 py-2 text-sm font-medium text-slate-300 rounded-md hover:bg-slate-700 hover:text-white"
+                        className="flex items-center w-full px-3 py-2 text-sm font-medium text-slate-600 rounded-md hover:bg-white hover:text-[#0969da] hover:shadow-sm hover:border-slate-200 border border-transparent transition-all"
                     >
-                        <FileText className="mr-3 h-5 w-5" />
+                        <FileText className="mr-3 h-4 w-4" />
                         Editor
                     </button>
-                    <button className="flex items-center w-full px-2 py-2 text-sm font-medium text-slate-300 rounded-md hover:bg-slate-700 hover:text-white">
-                        <Settings className="mr-3 h-5 w-5" />
+                    <button className="flex items-center w-full px-3 py-2 text-sm font-medium text-slate-600 rounded-md hover:bg-white hover:text-[#0969da] hover:shadow-sm hover:border-slate-200 border border-transparent transition-all">
+                        <Settings className="mr-3 h-4 w-4" />
                         Settings
                     </button>
                 </nav>

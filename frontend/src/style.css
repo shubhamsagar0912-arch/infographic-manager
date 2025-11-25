@@ -14,5 +14,5 @@ body,
     height: 100%;
     margin: 0;
     font-family: "Nunito", sans-serif;
-    @apply bg-slate-900 text-white;
+    @apply bg-white text-zinc-900;
 }

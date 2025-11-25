@@ -11,6 +11,7 @@ function App() {
     const [currentPath, setCurrentPath] = useState<string | null>(localStorage.getItem('lastWorkspace'));
     const [isDirty, setIsDirty] = useState(false);
     const [viewMode, setViewMode] = useState<'editor' | 'gallery'>('editor');
+    const [editorView, setEditorView] = useState<'edit' | 'preview'>('edit');
 
     const handleFileSelect = async (path: string) => {
         if (isDirty) {
@@ -22,6 +23,7 @@ function App() {
             setCurrentFile(path);
             setIsDirty(false);
             setViewMode('editor');
+            setEditorView('edit');
         } catch (err) {
             console.error("Failed to read file", err);
         }
@@ -56,26 +58,33 @@ function App() {
     }, [content, currentFile]);
 
     return (
-        <div className="flex h-screen w-screen overflow-hidden bg-slate-900 text-white">
+        <div className="flex h-screen w-screen overflow-hidden bg-white text-zinc-900">
             <Sidebar
                 onFileSelect={handleFileSelect}
                 onViewChange={setViewMode}
                 onFolderOpen={handleFolderOpen}
                 currentWorkspace={currentPath}
             />
-            <main className="flex-1 flex flex-col overflow-hidden relative">
+            <main className="flex-1 flex flex-col overflow-hidden relative bg-white">
                 {viewMode === 'editor' && (
-                    <div className="h-12 bg-slate-800 border-b border-slate-700 flex items-center px-4 justify-between">
-                        <div className="text-sm text-slate-400 truncate">
-                            {currentFile || "Untitled"} {isDirty && "*"}
+                    <div className="h-14 bg-sky-50 border-b border-sky-100 flex items-center px-4 justify-between shadow-sm z-10">
+                        <div className="text-sm font-semibold text-slate-700 truncate flex-1 mr-4 flex items-center">
+                            <span className="bg-sky-100 text-sky-700 px-2 py-0.5 rounded text-xs mr-2 border border-sky-200">FILE</span>
+                            {currentFile ? currentFile.split('/').pop() : "Untitled"} {isDirty && <span className="text-amber-500 ml-1">*</span>}
                         </div>
-                        <div className="flex space-x-2">
+                        <div className="flex space-x-3">
+                            <button
+                                onClick={() => setEditorView(editorView === 'edit' ? 'preview' : 'edit')}
+                                className="flex items-center px-4 py-1.5 text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 rounded-md transition-all shadow-sm"
+                            >
+                                {editorView === 'edit' ? "Preview" : "Edit"}
+                            </button>
                             <button
                                 onClick={handleSave}
                                 disabled={!currentFile}
-                                className={`flex items-center px-3 py-1.5 text-xs font-medium rounded transition-colors ${currentFile
-                                        ? "bg-blue-600 hover:bg-blue-500 text-white"
-                                        : "bg-slate-700 text-slate-500 cursor-not-allowed"
+                                className={`flex items-center px-4 py-1.5 text-xs font-bold rounded-md transition-all shadow-sm ${currentFile
+                                        ? "bg-[#2ea44f] hover:bg-[#2c974b] text-white border border-[rgba(27,31,35,0.15)]"
+                                        : "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
                                     }`}
                             >
                                 <Save className="w-4 h-4 mr-1.5" />
@@ -87,14 +96,13 @@ function App() {
 
                 <div className="flex-1 flex overflow-hidden">
                     {viewMode === 'editor' ? (
-                        <>
-                            <div className="w-1/2 border-r border-slate-700">
+                        <div className="w-full h-full">
+                            {editorView === 'edit' ? (
                                 <Editor content={content} onChange={(val) => { setContent(val); setIsDirty(true); }} />
-                            </div>
-                            <div className="w-1/2">
+                            ) : (
                                 <Preview content={content} filePath={currentFile} />
-                            </div>
-                        </>
+                            )}
+                        </div>
                     ) : (
                         <Gallery currentPath={currentPath} />
                     )}

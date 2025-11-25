@@ -19,6 +19,7 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
     "@types/d3-dispatch": "^3.0.7",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",

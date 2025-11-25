@@ -8,7 +8,7 @@ import { Save } from 'lucide-react';
 function App() {
     const [content, setContent] = useState<string>("# Welcome\n\nSelect a file to edit or start typing.");
     const [currentFile, setCurrentFile] = useState<string | null>(null);
-    const [currentPath, setCurrentPath] = useState<string | null>(null);
+    const [currentPath, setCurrentPath] = useState<string | null>(localStorage.getItem('lastWorkspace'));
     const [isDirty, setIsDirty] = useState(false);
     const [viewMode, setViewMode] = useState<'editor' | 'gallery'>('editor');
 
@@ -39,6 +39,11 @@ function App() {
         }
     };
 
+    const handleFolderOpen = (path: string) => {
+        setCurrentPath(path);
+        localStorage.setItem('lastWorkspace', path);
+    };
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 's') {
@@ -55,7 +60,8 @@ function App() {
             <Sidebar
                 onFileSelect={handleFileSelect}
                 onViewChange={setViewMode}
-                onFolderOpen={setCurrentPath}
+                onFolderOpen={handleFolderOpen}
+                currentWorkspace={currentPath}
             />
             <main className="flex-1 flex flex-col overflow-hidden relative">
                 {viewMode === 'editor' && (
@@ -68,8 +74,8 @@ function App() {
                                 onClick={handleSave}
                                 disabled={!currentFile}
                                 className={`flex items-center px-3 py-1.5 text-xs font-medium rounded transition-colors ${currentFile
-                                    ? "bg-blue-600 hover:bg-blue-500 text-white"
-                                    : "bg-slate-700 text-slate-500 cursor-not-allowed"
+                                        ? "bg-blue-600 hover:bg-blue-500 text-white"
+                                        : "bg-slate-700 text-slate-500 cursor-not-allowed"
                                     }`}
                             >
                                 <Save className="w-4 h-4 mr-1.5" />

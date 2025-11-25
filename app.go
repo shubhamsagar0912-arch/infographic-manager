@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -76,4 +77,49 @@ func (a *App) ReadBinaryFile(filePath string) ([]byte, error) {
 // SaveFile saves content to a file
 func (a *App) SaveFile(filePath string, content string) error {
 	return os.WriteFile(filePath, []byte(content), 0644)
+}
+
+// CreateFile creates a new empty file
+func (a *App) CreateFile(parentPath string, name string) error {
+	fullPath := filepath.Join(parentPath, name)
+	file, err := os.Create(fullPath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	return nil
+}
+
+// CreateDirectory creates a new directory
+func (a *App) CreateDirectory(parentPath string, name string) error {
+	fullPath := filepath.Join(parentPath, name)
+	return os.Mkdir(fullPath, 0755)
+}
+
+// ImportFile copies a file from source to destination directory
+func (a *App) ImportFile(destDir string) error {
+	selection, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Select File to Import",
+	})
+	if err != nil || selection == "" {
+		return err
+	}
+
+	srcFile, err := os.Open(selection)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	fileName := filepath.Base(selection)
+	destPath := filepath.Join(destDir, fileName)
+
+	destFile, err := os.Create(destPath)
+	if err != nil {
+		return err
+	}
+	defer destFile.Close()
+
+	_, err = io.Copy(destFile, srcFile)
+	return err
 }

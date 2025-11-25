@@ -45,9 +45,17 @@ jobs:
           # For universal binary (Intel + Apple Silicon)
           wails build -platform darwin/universal
 
+      - name: Create DMG
+        run: |
+          npm install -g create-dmg
+          create-dmg build/bin/infographic-manager.app build/bin || true
+          # Rename if needed, create-dmg usually outputs "App Name X.X.X.dmg"
+          # We'll try to find the dmg and move it to a predictable name
+          find . -name "*.dmg" -exec mv {} build/bin/InfographicManager.dmg \;
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: InfographicManager-macOS
-          path: build/bin/infographic-manager.app
+          name: InfographicManager-DMG
+          path: build/bin/InfographicManager.dmg
           if-no-files-found: error

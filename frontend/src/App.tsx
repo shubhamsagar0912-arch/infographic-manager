@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
 import Gallery from './components/Gallery';
+import Settings, { AppSettings } from './components/Settings';
 import { Save } from 'lucide-react';
 
 function App() {
@@ -10,9 +11,30 @@ function App() {
     const [currentFile, setCurrentFile] = useState<string | null>(null);
     const [currentPath, setCurrentPath] = useState<string | null>(localStorage.getItem('lastWorkspace'));
     const [isDirty, setIsDirty] = useState(false);
-    const [viewMode, setViewMode] = useState<'editor' | 'gallery'>('editor');
+    const [viewMode, setViewMode] = useState<'editor' | 'gallery' | 'settings'>('editor');
     const [editorView, setEditorView] = useState<'edit' | 'preview'>('edit');
     const [refreshKey, setRefreshKey] = useState(0);
+
+    const [settings, setSettings] = useState<AppSettings>({
+        fontSize: '16px',
+        fontFamily: '"Nunito", sans-serif',
+    });
+
+    useEffect(() => {
+        const savedSettings = localStorage.getItem('appSettings');
+        if (savedSettings) {
+            try {
+                setSettings(JSON.parse(savedSettings));
+            } catch (e) {
+                console.error("Failed to parse settings", e);
+            }
+        }
+    }, []);
+
+    const handleSettingsChange = (newSettings: AppSettings) => {
+        setSettings(newSettings);
+        localStorage.setItem('appSettings', JSON.stringify(newSettings));
+    };
 
     const handleFileSelect = async (path: string) => {
         if (isDirty) {
@@ -43,10 +65,7 @@ function App() {
 
             try {
                 await window.go.main.App.CreateFile(currentPath, name);
-                // Assume standard separator for now, or just use name if relative works (it might not for SaveFile)
-                // We'll construct it manually.
                 targetFile = `${currentPath}/${name}`;
-
                 setRefreshKey(prev => prev + 1);
                 setCurrentFile(targetFile);
             } catch (err) {
@@ -123,13 +142,23 @@ function App() {
                     {viewMode === 'editor' ? (
                         <div className="w-full h-full">
                             {editorView === 'edit' ? (
-                                <Editor content={content} onChange={(val) => { setContent(val); setIsDirty(true); }} />
+                                <Editor
+                                    content={content}
+                                    onChange={(val) => { setContent(val); setIsDirty(true); }}
+                                    settings={settings}
+                                />
                             ) : (
-                                <Preview content={content} filePath={currentFile} />
+                                <Preview
+                                    content={content}
+                                    filePath={currentFile}
+                                    settings={settings}
+                                />
                             )}
                         </div>
-                    ) : (
+                    ) : viewMode === 'gallery' ? (
                         <Gallery currentPath={currentPath} />
+                    ) : (
+                        <Settings settings={settings} onSettingsChange={handleSettingsChange} />
                     )}
                 </div>
             </main>

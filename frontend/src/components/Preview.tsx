@@ -2,15 +2,17 @@ import React, { useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import mermaid from 'mermaid';
+import { AppSettings } from './Settings';
 
 interface PreviewProps {
     content: string;
     filePath?: string | null;
+    settings: AppSettings;
 }
 
 mermaid.initialize({
     startOnLoad: false,
-    theme: 'default', // Changed to default (light)
+    theme: 'default',
     securityLevel: 'loose',
 });
 
@@ -68,10 +70,16 @@ const LocalImage = ({ src, alt, filePath }: { src?: string, alt?: string, filePa
     return <img src={imageSrc} alt={alt} className="max-w-full h-auto rounded-lg my-4 shadow-sm" />;
 };
 
-const Preview: React.FC<PreviewProps> = ({ content, filePath }) => {
+const Preview: React.FC<PreviewProps> = ({ content, filePath, settings }) => {
     return (
         <div className="h-full w-full flex flex-col bg-white overflow-hidden">
-            <div className="flex-1 overflow-auto p-12 prose prose-slate max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h1:text-slate-900 prose-a:text-[#0969da] prose-code:text-[#0969da] prose-code:bg-slate-100 prose-code:px-1 prose-code:rounded prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200 prose-img:rounded-lg prose-img:shadow-sm">
+            <div
+                className="flex-1 overflow-auto p-12 prose prose-slate max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h1:text-slate-900 prose-a:text-[#0969da] prose-code:text-[#0969da] prose-code:bg-slate-100 prose-code:px-1 prose-code:rounded prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200 prose-img:rounded-lg prose-img:shadow-sm"
+                style={{
+                    fontSize: settings.fontSize,
+                    fontFamily: settings.fontFamily,
+                }}
+            >
                 <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{

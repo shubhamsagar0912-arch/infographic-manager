@@ -10,7 +10,7 @@ interface FileInfo {
 
 interface SidebarProps {
     onFileSelect: (path: string) => void;
-    onViewChange: (mode: 'editor' | 'gallery') => void;
+    onViewChange: (mode: 'editor' | 'gallery' | 'settings') => void;
     onFolderOpen: (path: string) => void;
     currentWorkspace: string | null;
     refreshKey?: number;
@@ -289,7 +289,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onFileSelect, onViewChange, onFolderO
                         <FileText className="mr-3 h-4 w-4" />
                         Editor
                     </button>
-                    <button className="flex items-center w-full px-3 py-2 text-sm font-medium text-slate-600 rounded-md hover:bg-white hover:text-[#0969da] hover:shadow-sm hover:border-slate-200 border border-transparent transition-all">
+                    <button
+                        onClick={() => onViewChange('settings')}
+                        className="flex items-center w-full px-3 py-2 text-sm font-medium text-slate-600 rounded-md hover:bg-white hover:text-[#0969da] hover:shadow-sm hover:border-slate-200 border border-transparent transition-all"
+                    >
                         <Settings className="mr-3 h-4 w-4" />
                         Settings
                     </button>
